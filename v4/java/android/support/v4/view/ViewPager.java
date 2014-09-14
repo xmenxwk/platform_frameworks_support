@@ -82,6 +82,7 @@ import java.util.Comparator;
  *      complete}
  */
 public class ViewPager extends ViewGroup {
+	
     private static final String TAG = "ViewPager";
     private static final boolean DEBUG = false;
 
@@ -120,7 +121,7 @@ public class ViewPager extends ViewGroup {
         }
     };
 
-    private static final Interpolator sInterpolator = new Interpolator() {
+    protected static final Interpolator sInterpolator = new Interpolator() {
         public float getInterpolation(float t) {
             t -= 1.0f;
             return t * t * t * t * t + 1.0f;
@@ -137,7 +138,7 @@ public class ViewPager extends ViewGroup {
     private int mRestoredCurItem = -1;
     private Parcelable mRestoredAdapterState = null;
     private ClassLoader mRestoredClassLoader = null;
-    private Scroller mScroller;
+    protected Scroller mScroller;
     private PagerObserver mObserver;
 
     private int mPageMargin;
@@ -355,7 +356,7 @@ public class ViewPager extends ViewGroup {
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setFocusable(true);
         final Context context = getContext();
-        mScroller = new Scroller(context, sInterpolator);
+        InitScroller();
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         final float density = context.getResources().getDisplayMetrics().density;
 
@@ -377,7 +378,12 @@ public class ViewPager extends ViewGroup {
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
     }
-
+    
+    protected void InitScroller()
+    {
+    	mScroller = new Scroller(getContext(), sInterpolator);
+    }
+    
     @Override
     protected void onDetachedFromWindow() {
         removeCallbacks(mEndScrollRunnable);
@@ -604,8 +610,7 @@ public class ViewPager extends ViewGroup {
      *                            to be drawn from last to first instead of first to last.
      * @param transformer PageTransformer that will modify each page's animation properties
      */
-    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {
-        if (Build.VERSION.SDK_INT >= 11) {
+    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {       
             final boolean hasTransformer = transformer != null;
             final boolean needsPopulate = hasTransformer != (mPageTransformer != null);
             mPageTransformer = transformer;
@@ -615,8 +620,7 @@ public class ViewPager extends ViewGroup {
             } else {
                 mDrawingOrder = DRAW_ORDER_DEFAULT;
             }
-            if (needsPopulate) populate();
-        }
+            if (needsPopulate) populate();        
     }
 
     void setChildrenDrawingOrderEnabledCompat(boolean enable) {
